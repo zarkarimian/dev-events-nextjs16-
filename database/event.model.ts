@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, models, type HydratedDocument, type Model } from "mongoose";
+import { Schema, model, models, type HydratedDocument, type Model } from "mongoose";
 
 export type EventMode = "online" | "offline" | "hybrid";
 
@@ -74,7 +74,7 @@ function normalizeTime(input: string): string {
 const EventSchema = new Schema<Event>(
   {
     title: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, unique: true, trim: true },
+    slug: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     overview: { type: String, required: true, trim: true },
     image: { type: String, required: true, trim: true },
