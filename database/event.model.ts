@@ -74,7 +74,7 @@ function normalizeTime(input: string): string {
 const EventSchema = new Schema<Event>(
   {
     title: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, trim: true },
+    slug: { type: String, trim: true },
     description: { type: String, required: true, trim: true },
     overview: { type: String, required: true, trim: true },
     image: { type: String, required: true, trim: true },
@@ -136,8 +136,8 @@ EventSchema.pre("save", function (this: EventDocument) {
     throw new Error("Tags must have at least one item.");
   }
 
-  // Only regenerate slug when the title changes.
-  if (this.isModified("title")) {
+  // Only regenerate slug when the title changes or when creating a new document.
+  if (this.isNew || this.isModified("title")) {
     const s = slugify(this.title);
     if (!s) throw new Error("Title must produce a valid slug.");
     this.slug = s;
@@ -148,5 +148,9 @@ EventSchema.pre("save", function (this: EventDocument) {
   if (this.isNew || this.isModified("time")) this.time = normalizeTime(this.time);
 });
 
-export const EventModel: Model<Event> =
-  (models.Event as Model<Event> | undefined) ?? model<Event>("Event", EventSchema);
+// In development, delete the cached model to pick up schema changes
+if (process.env.NODE_ENV === "development" && models.Event) {
+  delete models.Event;
+}
+
+export const EventModel: Model<Event> = model<Event>("Event", EventSchema);
