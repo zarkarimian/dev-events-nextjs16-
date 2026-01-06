@@ -46,6 +46,9 @@ BookingSchema.pre("save", async function (this: BookingDocument) {
   if (!EMAIL_RE.test(this.email)) throw new Error("Invalid email.");
 });
 
-export const BookingModel: Model<Booking> =
-  (models.Booking as Model<Booking> | undefined) ??
-  model<Booking>("Booking", BookingSchema);
+  // In development, delete the cached model to pick up schema changes
+if (process.env.NODE_ENV === "development" && models.Booking) {
+  delete models.Booking;
+}
+
+export const BookingModel: Model<Booking> = model<Booking>("Booking", BookingSchema);

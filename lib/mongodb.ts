@@ -48,7 +48,15 @@ export default async function connectToDatabase(): Promise<Mongoose> {
   if (!cached.promise) {
     cached.promise = mongoose
       .connect(MONGODB_URI)
-      .then((mongooseInstance) => mongooseInstance);
+      .then((mongooseInstance) => {
+        cached.conn = mongooseInstance;
+        return mongooseInstance;
+      })
+      .catch((error) => {
+        // Clear the promise on error so we can retry
+        cached.promise = null;
+        throw error;
+      });
   }
 
   cached.conn = await cached.promise;
